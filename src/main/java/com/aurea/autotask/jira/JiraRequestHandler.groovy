@@ -71,7 +71,8 @@ class JiraRequestHandler {
             return jiraCache.issueKey
         }
 
-        Long issueTypeId = getByNameOrFail(issueTypes, 'Development Task').id
+        def issueType = jiraCache.parentIssue ? jiraCache.issueSubTaskType : jiraCache.issueType
+        def issueTypeId = getByNameOrFail(issueTypes, issueType).id
 
         def builder = new IssueInputBuilder(jiraCache.projectKey, issueTypeId, jiraCache.summary)
 
@@ -79,6 +80,10 @@ class JiraRequestHandler {
             log.info "Setting reviewer to '$jiraCache.reviewer'"
             def reviewerField = new FieldInput(reviewerField.id, ComplexIssueInputFieldValue.with('name', jiraCache.reviewer))
             builder.setFieldInput(reviewerField)
+        }
+
+        if (jiraCache.parentIssue) {
+            builder.setFieldValue('parent', ComplexIssueInputFieldValue.with('key', jiraCache.parentIssue))
         }
 
         log.info 'Creating issue input'
