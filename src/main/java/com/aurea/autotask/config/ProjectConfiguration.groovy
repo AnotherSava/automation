@@ -21,6 +21,10 @@ class ProjectConfiguration {
     String summary
     String timeSpent
 
+    String parentIssue
+    String issueType
+    String issueSubTaskType
+
     User me
 
     static class User {

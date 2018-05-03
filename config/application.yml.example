@@ -1,13 +1,16 @@
 spring.output.ansi.enabled: ALWAYS
 logging.level.root: INFO
 project:
-  jiraIssue: CSA-847
-  summary:
-  timeSpent: 2h
-  reviewerJira:
-  jira:
-  projectKey: CSA
+  jiraIssue:
+  parentIssue: CSA-862
   desiredStatus: CLOSED
+  summary: Study NPS prediction research
+#  reviewerJira:
+#  timeSpent: 2h
+  issueType: Development Task
+  issueSubTaskType: Sub-task
+  projectKey: CSA
+  jira: https://jira.devfactory.com
   me:
-    adUser:
-    adPassword:
+    adUser: *****
+    adPassword: *****
