@@ -1,0 +1,13 @@
+spring.output.ansi.enabled: ALWAYS
+logging.level.root: INFO
+project:
+  jiraIssue: CSA-847
+  summary:
+  timeSpent: 2h
+  reviewerJira:
+  jira:
+  projectKey: CSA
+  desiredStatus: CLOSED
+  me:
+    adUser:
+    adPassword:
