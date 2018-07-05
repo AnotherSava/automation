@@ -37,6 +37,8 @@ class CreateJiraTask implements Callable<Issue> {
 
             jiraRequestHandler.transition(TRANSITIONS_PATH)
 
+            jiraRequestHandler.addWorklog()
+
             issue
         }
     }

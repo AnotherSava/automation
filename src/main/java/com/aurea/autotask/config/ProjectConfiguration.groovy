@@ -19,7 +19,7 @@ class ProjectConfiguration {
     String desiredStatus
     String jiraIssue
     String summary
-    String timeSpent
+    int timeSpent
 
     String parentIssue
     String issueType
