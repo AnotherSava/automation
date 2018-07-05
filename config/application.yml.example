@@ -2,7 +2,7 @@ spring.output.ansi.enabled: ALWAYS
 logging.level.root: INFO
 project:
   jiraIssue:
-  parentIssue: CSA-862
+  parentIssueKey: CSA-862
   desiredStatus: CLOSED
   summary: Study NPS prediction research
 #  reviewerJira:
