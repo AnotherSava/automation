@@ -18,6 +18,9 @@ import groovy.util.logging.Log4j2
 import one.util.streamex.StreamEx
 import org.joda.time.DateTime
 
+import static org.apache.commons.lang.StringUtils.substringAfter
+import static org.apache.commons.lang.StringUtils.substringBefore
+
 @Log4j2
 class JiraRequestHandler {
 
@@ -79,15 +82,28 @@ class JiraRequestHandler {
         jiraCache.issue = client.issueClient.getIssue(issueKey).claim()
     }
 
+    Issue getParentIssue() {
+        if (jiraCache.parentIssue) {
+            return jiraCache.parentIssue
+        }
+
+        log.info 'Getting parent issue'
+
+        jiraCache.parentIssue = client.issueClient.getIssue(jiraCache.parentIssueKey).claim()
+    }
+
     String getIssueKey() {
         if (jiraCache.issueKey) {
             return jiraCache.issueKey
         }
 
-        def issueType = jiraCache.parentIssue ? jiraCache.issueSubTaskType : jiraCache.issueType
+        def issueType = jiraCache.parentIssueKey ? jiraCache.issueSubTaskType : jiraCache.issueType
         def issueTypeId = getByNameOrFail(issueTypes, issueType).id
 
-        def builder = new IssueInputBuilder(jiraCache.projectKey, issueTypeId, jiraCache.summary)
+        def summary = jiraCache.summary
+        def summaryPrefix = jiraCache.parentIssueKey ? parentIssue.summary + ' - ' : ''
+
+        def builder = new IssueInputBuilder(jiraCache.projectKey, issueTypeId, summaryPrefix + createTitle(summary))
 
         if (jiraCache.reviewer) {
             log.info "Setting reviewer to '$jiraCache.reviewer'"
@@ -95,14 +111,15 @@ class JiraRequestHandler {
             builder.setFieldInput(reviewerField)
         }
 
-        if (jiraCache.parentIssue) {
-            builder.setFieldValue('parent', ComplexIssueInputFieldValue.with('key', jiraCache.parentIssue))
+        if (jiraCache.parentIssueKey) {
+            builder.setFieldValue('parent', ComplexIssueInputFieldValue.with('key', jiraCache.parentIssueKey))
         }
 
         log.info 'Creating issue input'
 
         IssueInput issueInput = builder
                 .setAssigneeName(jiraCache.assignee)
+                .setDescription(createDescription(summary))
                 .build()
 
         log.info 'Creating issue'
@@ -148,5 +165,18 @@ class JiraRequestHandler {
             String names = StreamEx.of(entities.iterator()).map { it.getName() }.joining(', ')
             new IllegalStateException("Failed to find named entity $name in [$names]")
         }
+    }
+
+    static createTitle(String summary) {
+        substringBefore(summary, ':')
+    }
+
+    static createDescription(String summary) {
+        def linePrefix = '* '
+
+        linePrefix + substringAfter(summary, ':').split(';')
+                *.trim()
+                *.capitalize()
+                .join(System.lineSeparator() + linePrefix)
     }
 }
