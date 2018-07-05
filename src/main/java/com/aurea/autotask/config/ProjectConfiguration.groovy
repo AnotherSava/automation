@@ -21,7 +21,7 @@ class ProjectConfiguration {
     String summary
     int timeSpent
 
-    String parentIssue
+    String parentIssueKey
     String issueType
     String issueSubTaskType
 

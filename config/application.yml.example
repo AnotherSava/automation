@@ -6,7 +6,7 @@ project:
   desiredStatus: CLOSED
   summary: Study NPS prediction research
 #  reviewerJira:
-#  timeSpent: 2h
+  timeSpent: 120
   issueType: Development Task
   issueSubTaskType: Sub-task
   projectKey: CSA

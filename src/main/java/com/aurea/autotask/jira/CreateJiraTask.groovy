@@ -21,7 +21,7 @@ class CreateJiraTask implements Callable<Issue> {
         this.projectConfiguration = projectConfiguration
         projectConfiguration.with {
             jiraCache = new JiraCache(projectKey, summary, reviewerJira, desiredStatus, me.adUser,
-                    jiraIssue, timeSpent, issueType, issueSubTaskType, parentIssue)
+                    jiraIssue, timeSpent, issueType, issueSubTaskType, parentIssueKey)
         }
     }
 
