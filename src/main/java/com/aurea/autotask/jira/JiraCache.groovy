@@ -10,20 +10,20 @@ class JiraCache {
     final String reviewer
     final String desiredStatus
     final String assignee
-    final String timeSpent
+    final int timeSpent
     final String issueType
     final String issueSubTaskType
-    final String parentIssueKey
+    final String parentIssue
 
     String issueKey
+
     Issue issue
-    Issue parentIssue
     Iterable<IssueType> issueTypes
     Iterable<Field> fields
     Field reviewerField
 
     JiraCache(String projectKey, String summary, String reviewer, String desiredStatus, String assignee,
-              String issueKey, String timeSpent, String issueType, String issueSubTaskType, String parentIssueKey) {
+              String issueKey, int timeSpent, String issueType, String issueSubTaskType, String parentIssue) {
         this.projectKey = projectKey
         this.summary = summary
         this.reviewer = reviewer
@@ -33,6 +33,6 @@ class JiraCache {
         this.timeSpent = timeSpent
         this.issueType = issueType
         this.issueSubTaskType = issueSubTaskType
-        this.parentIssueKey = parentIssueKey
+        this.parentIssue = parentIssue
     }
 }

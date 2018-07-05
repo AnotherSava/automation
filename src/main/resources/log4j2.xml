@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-  <Appenders>
-    <File name="MyFile" fileName="all.log" immediateFlush="false" append="false">
-      <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-    </File>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d{HH:mm:ss}: %-5level %logger{36} %msg%n"/>
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Root level="debug">
-      <AppenderRef ref="Console" level="info"/>
-      <AppenderRef ref="MyFile" level="debug"/>
-    </Root>
-  </Loggers>
+    <Appenders>
+        <File name="MyFile" fileName="all.log" immediateFlush="false" append="false">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </File>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss}: %-5level %logger{36} %msg%n"/>
+        </Console>
+        <Async name="ASYNC">
+            <AppenderRef ref="MyFile" />
+            <AppenderRef ref="Console" />
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.apache.http" level="ERROR" additivity="false" />
+        <Root level="debug">
+            <AppenderRef ref="ASYNC" />
+        </Root>
+    </Loggers>
 </Configuration>

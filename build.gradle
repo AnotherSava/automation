@@ -35,11 +35,12 @@ repositories {
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.9.RELEASE'
+    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.9.RELEASE') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: '1.5.9.RELEASE'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.7.Final'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.10.0'
     implementation group: 'com.atlassian.jira', name: 'jira-rest-java-client-core', version: '5.0.4'
     implementation group: 'com.atlassian.fugue', name: 'fugue', version: '2.2.1'
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.92'

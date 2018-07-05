@@ -11,11 +11,12 @@ import com.atlassian.jira.rest.client.api.domain.input.FieldInput
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput
+import com.atlassian.jira.rest.client.api.domain.input.WorklogInput
+import com.atlassian.jira.rest.client.api.domain.input.WorklogInputBuilder
+import com.atlassian.util.concurrent.Promise
 import groovy.util.logging.Log4j2
 import one.util.streamex.StreamEx
-
-import static org.apache.commons.lang.StringUtils.substringAfter
-import static org.apache.commons.lang.StringUtils.substringBefore
+import org.joda.time.DateTime
 
 @Log4j2
 class JiraRequestHandler {
@@ -36,6 +37,15 @@ class JiraRequestHandler {
             /* ToDo: Fix this dirty hack */
             transition(getByNameOrFail(transitions, transitionPath[currentStatus]))
         }
+    }
+
+    void addWorklog() {
+        WorklogInput worklogInput = new WorklogInputBuilder(issue.getSelf()).setStartDate(new DateTime())
+                .setComment("updated")
+                .setMinutesSpent(jiraCache.timeSpent)
+                .build()
+        Promise<Void> result = client.issueClient.addWorklog(issue.getWorklogUri(), worklogInput)
+        result.claim()
     }
 
     void transition(Transition transition) {
@@ -69,28 +79,15 @@ class JiraRequestHandler {
         jiraCache.issue = client.issueClient.getIssue(issueKey).claim()
     }
 
-    Issue getParentIssue() {
-        if (jiraCache.parentIssue) {
-            return jiraCache.parentIssue
-        }
-
-        log.info 'Getting parent issue'
-
-        jiraCache.parentIssue = client.issueClient.getIssue(jiraCache.parentIssueKey).claim()
-    }
-
     String getIssueKey() {
         if (jiraCache.issueKey) {
             return jiraCache.issueKey
         }
 
-        def issueType = jiraCache.parentIssueKey ? jiraCache.issueSubTaskType : jiraCache.issueType
+        def issueType = jiraCache.parentIssue ? jiraCache.issueSubTaskType : jiraCache.issueType
         def issueTypeId = getByNameOrFail(issueTypes, issueType).id
 
-        def summary = jiraCache.summary
-        def summaryPrefix = jiraCache.parentIssueKey ? parentIssue.summary + ' - ' : ''
-
-        def builder = new IssueInputBuilder(jiraCache.projectKey, issueTypeId, summaryPrefix + createTitle(summary))
+        def builder = new IssueInputBuilder(jiraCache.projectKey, issueTypeId, jiraCache.summary)
 
         if (jiraCache.reviewer) {
             log.info "Setting reviewer to '$jiraCache.reviewer'"
@@ -98,15 +95,14 @@ class JiraRequestHandler {
             builder.setFieldInput(reviewerField)
         }
 
-        if (jiraCache.parentIssueKey) {
-            builder.setFieldValue('parent', ComplexIssueInputFieldValue.with('key', jiraCache.parentIssueKey))
+        if (jiraCache.parentIssue) {
+            builder.setFieldValue('parent', ComplexIssueInputFieldValue.with('key', jiraCache.parentIssue))
         }
 
         log.info 'Creating issue input'
 
         IssueInput issueInput = builder
                 .setAssigneeName(jiraCache.assignee)
-                .setDescription(createDescription(summary))
                 .build()
 
         log.info 'Creating issue'
@@ -152,18 +148,5 @@ class JiraRequestHandler {
             String names = StreamEx.of(entities.iterator()).map { it.getName() }.joining(', ')
             new IllegalStateException("Failed to find named entity $name in [$names]")
         }
-    }
-
-    static createTitle(String summary) {
-        substringBefore(summary, ':')
-    }
-
-    static createDescription(String summary) {
-        def linePrefix = '* '
-
-        linePrefix + substringAfter(summary, ':').split(';')
-                *.trim()
-                *.capitalize()
-                .join(System.lineSeparator() + linePrefix)
     }
 }
